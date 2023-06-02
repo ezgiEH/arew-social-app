@@ -3,10 +3,8 @@ import { createBrowserSupabaseClient, createClientComponentClient } from '@supab
 import { SessionContextProvider } from '@supabase/auth-helpers-react'
 import { useState } from 'react'
 
-
 export default function App({ Component, pageProps }) {
-  const [supabaseClient] = useState(() => createBrowserSupabaseClient)
-
+  const [supabaseClient] = useState(() => createBrowserSupabaseClient())
 
   return (
     <SessionContextProvider
@@ -15,7 +13,5 @@ export default function App({ Component, pageProps }) {
     >
       <Component {...pageProps} />
     </SessionContextProvider>
-
   )
-
 }

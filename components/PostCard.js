@@ -4,10 +4,9 @@ import OutsideClickHandler from 'react-outside-click-handler';
 import { useState } from "react";
 import Link from "next/link";
 
-export default function PostCard() {
+export default function PostCard({content}) {
 
     const [dropDownOpen, setDropDownOpen] = useState(false)
-
     return (
         <Card>
             <div className='flex gap-3'>
@@ -74,7 +73,7 @@ export default function PostCard() {
                 </div>
             </div>
             <div>
-                <p className="my-3 text-sm">Lorem ipsum dolar sit amet</p>
+                <p className="my-3 text-sm">{content}</p>
                 <div className="rounded-md overflow-hidden">
                     <img src="https://images.unsplash.com/photo-1661956603025-8310b2e3036d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="post" />
                 </div>

@@ -1,14 +1,48 @@
+import { useEffect, useState } from 'react'
 import Avatar from './Avatar'
 import Card from './Card'
+import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react'
 
 export default function PostFormCard() {
+    const [profile, setProfile] = useState(null)
+    const [content, setContent] = useState('')
+    const supabase = useSupabaseClient()
+    const session = useSession()
+    useEffect(()=>{
+        supabase.from('profiles')
+        .select()
+        .eq('id',session.user.id)
+        .then(result=>{
+            if(result.data.length){
+                setProfile(result.data[0])
+            }
+        })
+    },[])
+
+    function createPost(){
+        supabase.from('posts').insert({
+            author:session.user.id,
+            content,
+        }).then(response =>{
+            if(!response.error){
+                setContent('')
+            }
+        })
+    }
+
+    if(!profile){
+        return 'Waiting for Profile info..'
+    }
+
     return (
         <Card>
             <div className='flex gap-2'>
                 <div>
-                    <Avatar />
+                    <Avatar url={profile.avatar}/>
                 </div>
-                <textarea className='grow p-3 h-14' placeholder={'Whats on your mind, Ezgi?'} />
+                {profile && (
+                    <textarea value={content} onChange={e => setContent(e.target.value)} className='grow p-3 h-14' placeholder={`Whats on your mind, ${profile.name.split(" ",1)}?`} />
+                )}
             </div>
             <div className='flex gap-5 items-center mt-2'>
                 <div>
@@ -34,7 +68,7 @@ export default function PostFormCard() {
                         <span className='hidden md:block'>Mood</span></button>
                 </div>
                 <div className='grow text-right'>
-                    <button className='bg-socialBlue text-white px-8 py-1 rounded-md'>Share</button>
+                    <button onClick={createPost} className='bg-socialBlue text-white px-8 py-1 rounded-md'>Share</button>
                 </div>
             </div>
         </Card>

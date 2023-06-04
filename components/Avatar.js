@@ -1,11 +1,13 @@
-export default function Avatar({size}) {
+
+export default function Avatar({size, url}) {
     let width = 'w-12'
     if(size === 'lg'){
         width ='w-24 md:w-36'
     }
+
     return (
         <div className={`${width} rounded-full overflow-hidden`}>
-            <img src='https://avatars.githubusercontent.com/u/20560655?v=4' alt='avatar'></img>
+            <img src={url} alt='avatar' referrerpolicy="no-referrer"></img>
         </div>
     )
 }

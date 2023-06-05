@@ -1,29 +1,37 @@
 import Card from "./Card"
 import Avatar from "./Avatar"
 import OutsideClickHandler from 'react-outside-click-handler';
-import { useState } from "react";
+import { useContext, useState } from "react";
 import Link from "next/link";
+import ReactTimeAgo from "react-time-ago";
+import { UserContext } from "@/contexts/userContext";
 
-export default function PostCard({content}) {
+
+export default function PostCard({content, created_at,profiles:authorProfile}) {
 
     const [dropDownOpen, setDropDownOpen] = useState(false)
+    const {profile:myProfile} = useContext(UserContext)
+
+
     return (
         <Card>
             <div className='flex gap-3'>
                 <div>
                     <Link href={'/profile'}>
                         <span className="cursor-pointer">
-                            <Avatar />
+                            <Avatar url={authorProfile.avatar}/>
                         </span>
                     </Link>
                 </div>
                 <div className="grow">
                     <p>
                         <Link href={'/profile'}>
-                            <span className='mr-1 font-semibold hover:underline cursor-pointer' href=''>Ezgi Hocaoğlu</span> shared a <Link className='text-socialBlue' href=''>album</Link>
+                            <span className='mr-1 font-semibold hover:underline cursor-pointer' href=''>{authorProfile.name}</span> shared a <Link className='text-socialBlue' href=''>album</Link>
                         </Link>
                     </p>
-                    <p className='text-gray-500 text-sm'>2 Hours ago</p>
+                    <p className='text-gray-500 text-sm'>
+                        <ReactTimeAgo date={created_at}></ReactTimeAgo>
+                    </p>
                 </div>
                 <div>
                     <button className="text-gray-400" onClick={() => setDropDownOpen(!dropDownOpen)}>
@@ -100,7 +108,7 @@ export default function PostCard({content}) {
             </div>
             <div className="flex mt-4 gap-3">
                 <div>
-                    <Avatar />
+                    <Avatar url={myProfile?.avatar}/>
                 </div>
                 <div className="relative border grow rounded-full">
                     <textarea className="block w-full p-3 px-4 overflow-hidden h-12 rounded-full" placeholder="Leave a comment"></textarea>

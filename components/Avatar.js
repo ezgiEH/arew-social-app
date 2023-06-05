@@ -7,7 +7,7 @@ export default function Avatar({size, url}) {
 
     return (
         <div className={`${width} rounded-full overflow-hidden`}>
-            <img src={url} alt='avatar' referrerpolicy="no-referrer"></img>
+            <img src={url} alt='avatar' referrerPolicy="no-referrer"></img>
         </div>
     )
 }

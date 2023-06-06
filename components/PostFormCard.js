@@ -3,9 +3,12 @@ import Avatar from './Avatar'
 import Card from './Card'
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react'
 import { UserContext } from '@/contexts/userContext'
+import Preloader from './Proloader'
 
 export default function PostFormCard({ onPost }) {
     const [content, setContent] = useState('')
+    const [uploads, setUploads] = useState([])
+    const [isUploading, setIsUploading] = useState(false)
     const supabase = useSupabaseClient()
     const session = useSession()
     const { profile } = useContext(UserContext)
@@ -16,10 +19,11 @@ export default function PostFormCard({ onPost }) {
         supabase.from('posts').insert({
             author: session.user.id,
             content,
+            photos: uploads,
         }).then(response => {
             if (!response.error) {
                 setContent('')
-                //resfresh when post shared
+                setUploads([])
                 if (onPost) {
                     onPost()
                 }
@@ -31,15 +35,25 @@ export default function PostFormCard({ onPost }) {
         return 'Waiting for Profile info..'
     }
 
-    function addPhotos(e){
+    async function addPhotos(e) {
         const files = e.target.files
-        for(const file of files){
-            const newName = Date.now() + file.name
-            supabase.storage.from('photos')
-            .upload(newName, file)
-            .then(result =>{
-                console.log(result);
-            })
+        if (files.length > 0) {
+            setIsUploading(true)
+
+            for (const file of files) {
+                const newName = Date.now() + file.name
+                const result = await supabase
+                    .storage
+                    .from('photos')
+                    .upload(newName, file)
+                if (result.data) {
+                    const url = process.env.NEXT_PUBLIC_SUPABASE_URL + '/storage/v1/object/public/photos/' + result.data.path
+                    setUploads(prevUploads => [...prevUploads, url])
+                } else {
+                    console.log(result);
+                }
+            }
+            setIsUploading(false)
         }
     }
 
@@ -54,10 +68,24 @@ export default function PostFormCard({ onPost }) {
                     <textarea value={content} onChange={e => setContent(e.target.value)} className='grow p-3 h-14' placeholder={`Whats on your mind, ${profile.name.split(" ", 1)}?`} />
                 )}
             </div>
+            {isUploading && (
+                <div>
+                    <Preloader />
+                </div>
+            )}
+            {uploads.length > 0 && (
+                <div className='flex grow gap-2 mt-2'>
+                    {uploads.map(upload => (
+                        <div key={upload.id}>
+                            <img src={upload} className='w-auto h-24 object-contain shadow-md rounded-md' />
+                        </div>
+                    ))}
+                </div>
+            )}
             <div className='flex gap-5 items-center mt-2'>
                 <div>
                     <label className='flex gap-1 cursor-pointer'>
-                        <input type='file' className='hidden' multiple onChange={addPhotos}/>
+                        <input type='file' className='hidden' multiple onChange={addPhotos} />
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
                         </svg>

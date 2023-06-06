@@ -10,7 +10,7 @@ export default function Layout({ children, hideNavigation }) {
 
     }
     return (
-        <main className={`md:flex mt-4 max-w-4xl mx-auto gap-6 mb-24 md:mb-0`}>
+        <div className={`md:flex mt-4 max-w-4xl mx-auto gap-6 mb-24 md:mb-0`}>
             {!hideNavigation && (
                 <div className=' w-full fixed bottom-0 -mb-5 md:static md:w-1/4 '>
                     <NavigationCard />
@@ -19,6 +19,6 @@ export default function Layout({ children, hideNavigation }) {
             <div className={rightColumnClasses}>
                 {children}
             </div>
-        </main>
+        </div>
     )
 }

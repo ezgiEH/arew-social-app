@@ -7,30 +7,30 @@ import ReactTimeAgo from "react-time-ago";
 import { UserContext } from "@/contexts/userContext";
 
 
-export default function PostCard({content, created_at,profiles:authorProfile}) {
+export default function PostCard({ content, created_at, photos, profiles: authorProfile }) {
 
     const [dropDownOpen, setDropDownOpen] = useState(false)
-    const {profile:myProfile} = useContext(UserContext)
+    const { profile: myProfile } = useContext(UserContext)
 
 
     return (
         <Card>
             <div className='flex gap-3'>
                 <div>
-                    <Link href={'/profile'}>
+                    <Link href={'/profile/'+ authorProfile?.id}>
                         <span className="cursor-pointer">
-                            <Avatar url={authorProfile.avatar}/>
+                            <Avatar url={authorProfile?.avatar} />
                         </span>
                     </Link>
                 </div>
                 <div className="grow">
                     <p>
-                        <Link href={'/profile'}>
-                            <span className='mr-1 font-semibold hover:underline cursor-pointer' href=''>{authorProfile.name}</span> shared a <Link className='text-socialBlue' href=''>album</Link>
+                        <Link href={'/profile/'+ authorProfile?.id}>
+                            <span className='mr-1 font-semibold hover:underline cursor-pointer' href=''>{authorProfile?.name}</span> shared a <Link className='text-socialBlue' href=''>album</Link>
                         </Link>
                     </p>
                     <p className='text-gray-500 text-sm'>
-                        <ReactTimeAgo date={created_at}></ReactTimeAgo>
+                        {/* <ReactTimeAgo date={created_at}></ReactTimeAgo> */}
                     </p>
                 </div>
                 <div>
@@ -82,9 +82,15 @@ export default function PostCard({content, created_at,profiles:authorProfile}) {
             </div>
             <div>
                 <p className="my-3 text-sm">{content}</p>
-                <div className="rounded-md overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1661956603025-8310b2e3036d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="post" />
-                </div>
+                {photos?.length > 0 && (
+                    <div className="flex gap-4">
+                        {photos.map(photo => (
+                            <div key={photos?.url} className="">
+                                <img src={photo} alt={content} className="w-80 rounded-md shadow-sm cursor-pointer hover:shadow-md hover:shadow-gray-400"/>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
             <div className="mt-5 flex gap-8">
                 <button className="flex gap-2 item-center">
@@ -108,7 +114,7 @@ export default function PostCard({content, created_at,profiles:authorProfile}) {
             </div>
             <div className="flex mt-4 gap-3">
                 <div>
-                    <Avatar url={myProfile?.avatar}/>
+                    <Avatar url={myProfile?.avatar} />
                 </div>
                 <div className="relative border grow rounded-full">
                     <textarea className="block w-full p-3 px-4 overflow-hidden h-12 rounded-full" placeholder="Leave a comment"></textarea>

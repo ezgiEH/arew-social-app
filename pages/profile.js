@@ -1,13 +1,45 @@
 import Avatar from "@/components/Avatar";
+import Banner from "@/components/Banner";
 import Card from "@/components/Card";
 import FriendInfo from "@/components/FriendInfo";
 import Layout from "@/components/Layout";
 import PostCard from "@/components/PostCard";
+import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 
 export default function ProfilePage() {
     const router = useRouter()
+    const userId = router.query.id
+    const [profile, setProfile] = useState(null)
+    const supabase = useSupabaseClient()
+
+
+    useEffect(() =>{
+        if(!userId){
+            return
+        }else{
+            fetchUser()
+        }
+    },[userId])
+
+    function fetchUser(){
+        supabase
+        .from('profiles',)
+        .select()
+        .eq('id', userId)
+        .then(result =>{
+            if(result.error){
+                throw result.error
+            }
+            if(result.data){
+                setProfile(result.data[0])
+            }
+        })
+    }
+
+
     const { asPath: pathname } = router
     const isPosts = pathname.includes('posts') || pathname === '/profile'
     const isAbout = pathname.includes('about')
@@ -17,25 +49,28 @@ export default function ProfilePage() {
     const tabClasses = 'flex gap-1 px-3 py-1 items-center border-b-4 border-b-white'
     const activeTabClasses = 'flex gap-1 px-3 py-1 items-center border-b-4 border-socialBlue text-socialBlue font-bold'
 
+    const session = useSession()
+    const isMyUser = userId === session?.user?.id
+
     return (
         <div >
             <Layout>
                 <Card noPadding={true}>
-                    <div className="relative">
-                        <div className="h-36 overflow-hidden flex items-center justify-center">
-                            <img src="https://images.unsplash.com/photo-1498503182468-3b51cbb6cb24?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80"></img>
-                        </div>
-                        <div className="absolute top-24 left-4">
-                            <Avatar size={'lg'} />
+                    <div className="relative overflow-hidden rounded-md">
+                        <Banner url={profile?.banner} editable={isMyUser} onChange={fetchUser()}/>
+                        <div className="absolute top-24 left-4 z-20">
+                            {profile && (
+                                <Avatar size={'lg'} url={profile.avatar} editable={isMyUser}/>
+                            )}
                         </div>
                         <div className="p-4 pt-0 md:pt-4 pb-0">
                             {/* Name & City */}
                             <div className="ml-24 md:ml-40">
                                 <h1 className="text-3xl font-bold">
-                                    Ezgi Hocaoğlu
+                                   {profile?.name}
                                 </h1>
                                 <div className="text-gray-500 leading-4">
-                                    Adana, Turkey
+                                    {profile?.place}
                                 </div>
                             </div>
                             {/* Name & City */}

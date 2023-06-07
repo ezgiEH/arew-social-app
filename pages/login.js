@@ -1,5 +1,5 @@
-import Card from "@/components/Card";
-import Layout from "@/components/Layout";
+import Card from "../components/Card";
+import Layout from "../components/Layout";
 import { useSupabaseClient } from "@supabase/auth-helpers-react"
 import Link from "next/link";
 

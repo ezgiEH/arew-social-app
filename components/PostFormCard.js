@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from 'react'
 import Avatar from './Avatar'
 import Card from './Card'
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react'
-import { UserContext } from '@/contexts/userContext'
+import { UserContext } from '../contexts/userContext'
 import Preloader from './Proloader'
 
 export default function PostFormCard({ onPost }) {

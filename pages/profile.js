@@ -13,32 +13,58 @@ export default function ProfilePage() {
     const router = useRouter()
     const userId = router.query.id
     const [profile, setProfile] = useState(null)
+    const [editMode, setEditMode] = useState(false)
+    const [name, setName] = useState('')
+    const [place, setPlace] = useState('')
+
     const supabase = useSupabaseClient()
 
-
-    useEffect(() =>{
-        if(!userId){
+    useEffect(() => {
+        if (!userId) {
             return
-        }else{
+        } else {
             fetchUser()
         }
-    },[userId])
+    }, [userId])
 
-    function fetchUser(){
-        supabase
-        .from('profiles',)
-        .select()
-        .eq('id', userId)
-        .then(result =>{
-            if(result.error){
-                throw result.error
+    // This function fetches user data from a database using Supabase.
+    async function fetchUser() {
+        try {
+            // Query the database for user data with the given user ID.
+            const { data, error } = await supabase
+                .from('profiles')
+                .select()
+                .eq('id', userId)
+
+            // If an error occurred during the query, throw the error.
+            if (error) {
+                throw error
             }
-            if(result.data){
-                setProfile(result.data[0])
+
+            // If user data was successfully retrieved, set the profile state with the first item in the data array.
+            if (data) {
+                setProfile(data[0])
             }
-        })
+        } catch (error) {
+            // If an error occurred during the try block, log the error to the console.
+            console.error(error)
+        }
     }
 
+    function saveProfile() {
+        supabase.from('profiles')
+            .update({
+                name: name,
+                place: place
+            })
+            .eq('id', session?.user?.id)
+            .then((result) => {
+                if (!result.error) {
+                    setProfile(prev => ({ ...prev, name, place }))
+                }
+                setEditMode(false)
+            })
+    }
 
     const { asPath: pathname } = router
     const isPosts = pathname.includes('posts') || pathname === '/profile'
@@ -57,20 +83,85 @@ export default function ProfilePage() {
             <Layout>
                 <Card noPadding={true}>
                     <div className="relative overflow-hidden rounded-md">
-                        <Banner url={profile?.banner} editable={isMyUser} onChange={fetchUser()}/>
+                        <Banner url={profile?.banner} editable={isMyUser} onChange={fetchUser()} />
                         <div className="absolute top-24 left-4 z-20">
                             {profile && (
-                                <Avatar size={'lg'} url={profile.avatar} editable={isMyUser}/>
+                                <Avatar size={'lg'} url={profile.avatar} editable={isMyUser} />
                             )}
                         </div>
                         <div className="p-4 pt-0 md:pt-4 pb-0">
                             {/* Name & City */}
-                            <div className="ml-24 md:ml-40">
-                                <h1 className="text-3xl font-bold">
-                                   {profile?.name}
-                                </h1>
-                                <div className="text-gray-500 leading-4">
-                                    {profile?.place}
+                            <div className="flex justify-between items-start ml-32 md:ml-40">
+                                <div>
+                                    {/* Name */}
+                                    {editMode && (
+                                        <div>
+                                            <input type="text"
+                                                className="border py-2 px-3 rounded-md"
+                                                placeholder="Your name"
+                                                value={name}
+                                                onChange={(e) => setName(e.target.value)}
+                                            />
+                                        </div>
+                                    )}
+                                    {!editMode && (
+                                        <h1 className="text-2xl md:text-3xl font-bold">
+                                            {profile?.name}
+                                        </h1>
+                                    )}
+                                    {/* Name */}
+
+                                    {/* Place */}
+                                    {editMode && (
+                                        <div>
+                                            <input type="text"
+                                                className="border py-2 px-3 rounded-md mt-1"
+                                                placeholder="Your Location"
+                                                value={place}
+                                                onChange={(e) => setPlace(e.target.value)}
+                                            />
+                                        </div>
+                                    )}
+                                    {!editMode && (
+                                        <div className="text-gray-500 leading-4">
+                                            {profile?.place || 'From Mars!'}
+                                        </div>
+                                    )}
+                                    {/* Place */}
+
+                                </div>
+                                <div className="flex gap-1 ">
+                                    {isMyUser && !editMode && (
+                                        <button
+                                            onClick={() => {
+                                                setEditMode(true)
+                                                setName(profile?.name)
+                                                setPlace(profile?.place)
+                                            }}
+                                            className="flex gap-1 items-center py-1 px-2 cursor-pointer shadow-sm shadow-gray-400 rounded-md">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                                            </svg>
+                                            edit
+                                        </button>
+                                    )}
+                                    {isMyUser && editMode && (
+                                        <button onClick={() => { saveProfile() }}
+                                            className="flex gap-1 text-green-500 items-center py-1 px-2 cursor-pointer shadow-sm shadow-gray-400 rounded-md">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                            </svg>
+                                            save
+                                        </button>
+                                    )}
+                                    {isMyUser && editMode && (
+                                        <button onClick={() => setEditMode(false)}
+                                            className="flex gap-1 text-red-500 items-center py-1 px-2 cursor-pointer shadow-sm shadow-gray-400 rounded-md">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                             {/* Name & City */}
@@ -165,18 +256,18 @@ export default function ProfilePage() {
                         <Card>
                             <h2 className="text-3xl mb-2">Photos <span className="text-sm">(4)</span></h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="rounded-md overflow-hidden h-48 flex items-center justify-center shadow-md">
-                                <img src="https://images.unsplash.com/photo-1685370851243-4b61da3b6015?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1471&q=80"></img>
-                            </div>
-                            <div className="rounded-md overflow-hidden h-48 flex items-center justify-center shadow-md">
-                                <img src="https://images.unsplash.com/photo-1682687982049-b3d433368cd1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1471&q=80"></img>
-                            </div>
-                            <div className="rounded-md overflow-hidden h-48 flex items-center justify-center shadow-md">
-                                <img src="https://images.unsplash.com/photo-1682685796467-89a6f149f07a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"></img>
-                            </div>
-                            <div className="rounded-md overflow-hidden h-48 flex items-center justify-center shadow-md">
-                                <img src="https://images.unsplash.com/photo-1661956602868-6ae368943878?ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"></img>
-                            </div>
+                                <div className="rounded-md overflow-hidden h-48 flex items-center justify-center shadow-md">
+                                    <img src="https://images.unsplash.com/photo-1685370851243-4b61da3b6015?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1471&q=80"></img>
+                                </div>
+                                <div className="rounded-md overflow-hidden h-48 flex items-center justify-center shadow-md">
+                                    <img src="https://images.unsplash.com/photo-1682687982049-b3d433368cd1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1471&q=80"></img>
+                                </div>
+                                <div className="rounded-md overflow-hidden h-48 flex items-center justify-center shadow-md">
+                                    <img src="https://images.unsplash.com/photo-1682685796467-89a6f149f07a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"></img>
+                                </div>
+                                <div className="rounded-md overflow-hidden h-48 flex items-center justify-center shadow-md">
+                                    <img src="https://images.unsplash.com/photo-1661956602868-6ae368943878?ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"></img>
+                                </div>
                             </div>
                         </Card>
                     </div>

@@ -20,7 +20,7 @@ export default function Banner({ url, editable, onChange }) {
     }
 
     return (
-        <div className="relative h-40 overflow-hidden flex items-center justify-center ">
+        <div className="relative h-36 overflow-hidden flex items-center justify-center ">
             <div>
                 <img src={url}></img>
             </div>

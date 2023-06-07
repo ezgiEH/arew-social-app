@@ -30,7 +30,7 @@ export default function PostCard({ content, created_at, photos, profiles: author
                         </Link>
                     </p>
                     <p className='text-gray-500 text-sm'>
-                        {/* <ReactTimeAgo date={created_at}></ReactTimeAgo> */}
+                        <ReactTimeAgo date={created_at}></ReactTimeAgo>
                     </p>
                 </div>
                 <div>
@@ -86,7 +86,7 @@ export default function PostCard({ content, created_at, photos, profiles: author
                     <div className="flex gap-4">
                         {photos.map(photo => (
                             <div key={photos?.url} className="">
-                                <img src={photo} alt={content} className="w-80 rounded-md shadow-sm cursor-pointer hover:shadow-md hover:shadow-gray-400"/>
+                                <img src={photo} alt={content} className="w-80 rounded-md shadow-sm cursor-pointer hover:shadow-md hover:shadow-gray-200"/>
                             </div>
                         ))}
                     </div>

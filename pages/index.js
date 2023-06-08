@@ -15,37 +15,28 @@ export default function Home() {
   const [profile, setProfile] = useState(null)
 
   useEffect(() =>{
-    fetchPosts()
-  })
-
-  useEffect(()=>{
-    if(!session?.user?.id){
-      return
+    if (!session?.user?.id) {
+        return;
     }
-    supabase.from('profiles')
-        .select()
-        .eq('id',session.user.id)
-        .then(result=>{
-            if(result.data.length){
-                setProfile(result.data[0])
-            }
-        })
-  },[session?.user?.id])
+
+    Promise.allSettled([
+        fetchPosts(),
+        supabase.from('profiles')
+            .select()
+            .eq('id',session.user.id)
+            .then(result => {
+                if (result.data.length) {
+                    setProfile(result.data[0])
+                }
+            })
+    ]);
+}, [session?.user?.id, posts]);
 
 async function fetchPosts() {
   const { data } = await supabase
     .from('posts')
-    .select(`
-      id,
-      content,
-      created_at,
-      photos,
-      profiles (
-        id,
-        avatar,
-        name
-      )
-    `)
+    .select(`id, content, created_at, photos, profiles (id, avatar, name)`)
+    .is('parent', null)
     .order('created_at', { ascending: false })
   setPosts(data)
 }

@@ -32,14 +32,23 @@ export default function Home() {
         })
   },[session?.user?.id])
 
-  function fetchPosts(){
-    supabase.from('posts')
-    .select('id, content, created_at,photos, profiles(id, avatar, name)')
-    .order('created_at',{ascending: false})
-    .then(result =>{
-      setPosts(result.data)
-    })
-  }
+async function fetchPosts() {
+  const { data } = await supabase
+    .from('posts')
+    .select(`
+      id,
+      content,
+      created_at,
+      photos,
+      profiles (
+        id,
+        avatar,
+        name
+      )
+    `)
+    .order('created_at', { ascending: false })
+  setPosts(data)
+}
 
   if(!session){
     return <LoginPage/>

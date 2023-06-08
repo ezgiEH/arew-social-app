@@ -2,33 +2,39 @@ import { uploadUserProfileImage } from "@/helpers/user"
 import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react"
 import { useState } from "react"
 import Preloader from "./Proloader"
+import Image from "next/image"
 
 export default function Avatar({ size, url, editable, onChange }) {
-    let width = 'w-12'
-    if (size === 'lg') {
-        width = 'w-24 md:w-36'
-    }
+    
 
     const supabase = useSupabaseClient()
     const [isUploading, setIsUploading] = useState(false)
     const session = useSession()
 
 
-    async function updateAvatar(e) {
-        const file = e.target.files?.[0]
-        if (file) {
-            setIsUploading(true)
-            await uploadUserProfileImage(supabase, session.user.id, file, 'avatars', 'avatar')
-            if (onChange) onChange()
-            setIsUploading(false)
-        }
+async function updateAvatar(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploading(true);
+    try {
+        await uploadUserProfileImage(supabase, session.user.id, file, 'avatars', 'avatar');
+        if (onChange) onChange();
+    } catch (error) {
+        console.error(error);
+    } finally {
+        setIsUploading(false);
     }
-
+}
+    
+    let width = 'w-12'
+    if (size === 'lg') {
+        width = 'w-24 md:w-36'
+    }
 
     return (
         <div className={`${width} relavite`}>
             <div className="rounded-full overflow-hidden">
-                <img src={url} alt='avatar' referrerPolicy="no-referrer" className="w-full"></img>
+                <img src={url} loading="lazy" alt='avatar' referrerPolicy="no-referrer" className="w-full"></img>
             </div>
             {isUploading && (
                 <div className="absolute flex items-center inset-0 bg-white rounded-full bg-opacity-80 z-10">

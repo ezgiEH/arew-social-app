@@ -1,6 +1,6 @@
 import ProfilePage from "../../profile";
 
-export default function ProfileAbout() {
+export default function Tab() {
     return (
         <ProfilePage />
     )

@@ -7,19 +7,23 @@ import ProfileTabs from "@/components/ProfileTabs";
 import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { UserContextProvider } from "@/contexts/userContext";
+
 
 export default function ProfilePage() {
-    const router = useRouter()
-    const userId = router.query.id
+
     const [profile, setProfile] = useState(null)
     const [editMode, setEditMode] = useState(false)
     const [name, setName] = useState('')
     const [place, setPlace] = useState('')
+
     const session = useSession()
+    const router = useRouter()
+    const userId = router.query.id
     const isMyUser = userId === session?.user?.id
     const supabase = useSupabaseClient()
-
     const tab = router?.query.tab?.[0] || 'posts'
+
 
 
     useEffect(() => {
@@ -47,27 +51,31 @@ export default function ProfilePage() {
         }
     }
 
-    function saveProfile() {
-        supabase.from('profiles')
-            .update({
-                name: name,
-                place: place
-            })
-            .eq('id', session?.user?.id)
-            .then((result) => {
-                if (!result.error) {
-                    setProfile(prev => ({ ...prev, name, place }))
-                }
-                setEditMode(false)
-            })
+    const saveProfile = async () => {
+        try {
+            const result = await supabase
+                .from('profiles')
+                .update({
+                    name,
+                    place,
+                })
+                .eq('id', session?.user?.id)
+
+            if (!result.error) {
+                setProfile(prev => ({ ...prev, name, place }))
+            }
+            setEditMode(false)
+        } catch (error) {
+            console.error(error)
+        }
     }
 
 
-  
+
 
     return (
-        <div >
-            <Layout>
+        <Layout>
+            <UserContextProvider>
                 <Card noPadding={true}>
                     <div className="relative overflow-hidden rounded-md">
                         <Banner url={profile?.banner} editable={isMyUser} onChange={fetchUser()} />
@@ -153,14 +161,14 @@ export default function ProfilePage() {
                             </div>
                             {/* Name & City */}
 
-                            {/* Info Buttons */}
-                                <ProfileTabs active={tab} userId={profile?.id}/>
-                            {/* Info Buttons */}
+                            {/* Tab Buttons */}
+                            <ProfileTabs active={tab} userId={profile?.id} />
+                            {/* Tab Buttons */}
                         </div>
                     </div>
                 </Card>
-               <ProfileContent activeTab={tab} userId={profile?.id}/>
-            </Layout>
-        </div>
+                <ProfileContent activeTab={tab} userId={profile?.id} />
+            </UserContextProvider>
+        </Layout>
     )
 }

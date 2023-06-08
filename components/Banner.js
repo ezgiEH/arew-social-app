@@ -7,23 +7,28 @@ export default function Banner({ url, editable, onChange }) {
     const supabase = useSupabaseClient()
     const [isUploading, setIsUploading] = useState(false)
     const session = useSession()
-    console.log(session);
 
-    async function updateBanner(e){
-        const file = e.target.files?.[0]
-        if(file){
-            setIsUploading(true)
-            await uploadUserProfileImage(supabase, session.user.id, file, 'banners', 'banner')
-            if(onChange) onChange()
-            setIsUploading(false)
-        }
-    }
+async function updateBanner(e) {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  try {
+    setIsUploading(true);
+    await uploadUserProfileImage(
+      supabase,
+      session.user.id,
+      file,
+      'banners',
+      'banner'
+    );
+    if (onChange) onChange();
+  } finally {
+    setIsUploading(false);
+  }
+}
 
     return (
         <div className="relative h-36 overflow-hidden flex items-center justify-center ">
-            <div>
-                <img src={url}></img>
-            </div>
             {isUploading && (
                 <div className="absolute flex items-center inset-0 bg-white bg-opacity-80 z-10">
                     <div className="inline-block mx-auto">
@@ -31,6 +36,9 @@ export default function Banner({ url, editable, onChange }) {
                     </div>
                 </div>
             )}
+            <div>
+                <img src={url} loading="lazy" alt="banner" referrerPolicy="no-referrer"></img>
+            </div>
             {editable && (
                 <div className="absolute right-0 bottom-0 m-2">
                     <label className="flex items-center gap-2 bg-white p-2 cursor-pointer rounded-full shadow-md shadow-black">

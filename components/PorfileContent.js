@@ -13,32 +13,34 @@ export default function ProfileContent({activeTab,userId}) {
 
     useEffect(() => {
       if (!userId) {
-        return;
+        return
       }
       if (activeTab === 'posts') {
         loadPosts().then(() => {});
       }
-    }, [userId]);
+    }, [userId])
   
     async function loadPosts() {
-      const posts = await userPosts(userId);
-      const profile = await userProfile(userId);
-      setPosts(posts);
-      setProfile(profile);
+      const posts = await userPosts(userId)
+      const profile = await userProfile(userId)
+      setPosts(posts)
+      setProfile(profile)
     }
   
     async function userPosts(userId) {
       const {data} = await supabase.from('posts')
         .select('id, content, created_at, author')
-        .eq('author', userId);
-      return data;
+        .eq('author', userId)
+        .order('created_at', { ascending: false })
+      return data
     }
   
     async function userProfile(userId) {
       const {data} = await supabase.from('profiles')
         .select()
-        .eq('id', userId);
-      return data?.[0];
+        .eq('id', userId)
+        
+      return data?.[0]
     }
     
     return (

@@ -141,8 +141,8 @@ export default function PostCard({ id, content, created_at, photos, profiles: au
                         <Link href={'/profile/' + authorProfile?.id}>
                             <span className='mr-1 font-semibold hover:underline cursor-pointer'>{authorProfile?.name}</span>
                         </Link>
-                        shared an
-                        <Link className='text-socialBlue' href=''> album</Link>
+                        shared a
+                        <Link className='text-socialBlue' href=''> {photos?.length > 0 ? <>photos</>  : <>post</>}</Link>
                     </p>
                     <p className='text-gray-500 text-sm'>
                         <ReactTimeAgo date={(new Date(date)).getTime()} />
@@ -240,16 +240,16 @@ export default function PostCard({ id, content, created_at, photos, profiles: au
                     4
                 </button>
             </div>
-            <div className="flex mt-4 gap-3">
+            <div className="flex mt-4 mb-2 gap-3">
                 <div>
                     <Avatar url={myProfile?.avatar} />
                 </div>
-                <div className="relative border grow rounded-full">
+                <div className="relative border w-full rounded-full">
                     <form onSubmit={postComment}>
                         <input
                             value={commentText}
                             onChange={e => setCommentText(e.target.value)}
-                            className="block w-full p-3 px-4 overflow-hidden h-12 rounded-full"
+                            className=" block w-full p-1 px-4 overflow-hidden h-12 rounded-full"
                             placeholder="Leave a comment" />
                     </form>
                     <button className="absolute top-3 right-3 text-gray-400">
@@ -259,15 +259,15 @@ export default function PostCard({ id, content, created_at, photos, profiles: au
                     </button>
                 </div>
             </div>
-            <div>
+            <div className="max-h-40 overflow-auto overflow-y-auto ">
                 {comments?.length > 0 && (
                     comments.map(comment => (
-                        <div key={comment.id} className="flex m-4 gap-2 items-center">
-                            <Avatar url={comment.profiles.avatar} />
-                            <div className="bg-gray-200 py-2 px-4 rounded-2xl">
-                                <div className="flex gap-2 justify-between">
+                        <div key={comment.id} className="flex m-2 gap-2 items-start">
+                            <Avatar url={comment.profiles.avatar} size={'sm'}/>
+                            <div className="bg-gray-200 w-80 py-2 px-3 rounded-2xl">
+                                <div className="flex justify-between">
                                     <Link href={'/profile/' + comment.profiles.id}>
-                                        <span className="block hover:underline cursor-pointer font-semibold mr-2">
+                                        <span className="text-sm block hover:underline cursor-pointer font-semibold mr-2">
                                             {comment.profiles.name}
                                         </span>
                                     </Link>
@@ -275,7 +275,7 @@ export default function PostCard({ id, content, created_at, photos, profiles: au
                                         <ReactTimeAgo timeStyle={'twitter'} date={(new Date(comment.created_at)).getTime()} />
                                     </span>
                                 </div>
-                                <p className="text-sm">{comment.content}</p>
+                                <p className="text-sm cursor-pointer line-clamp-1 hover:line-clamp-none white-space-nowrap">{comment.content}</p>
                             </div>
                         </div>
                     ))

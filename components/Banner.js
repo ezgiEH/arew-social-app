@@ -37,7 +37,7 @@ async function updateBanner(e) {
                 </div>
             )}
             <div>
-                <img src={url} loading="lazy" alt="banner" referrerPolicy="no-referrer"></img>
+                <img src={url ? url : "https://images.unsplash.com/photo-1477346611705-65d1883cee1e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"} loading="lazy" alt="banner" referrerPolicy="no-referrer"></img>
             </div>
             {editable && (
                 <div className="absolute right-0 bottom-0 m-2">

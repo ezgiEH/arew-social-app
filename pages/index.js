@@ -30,7 +30,7 @@ export default function Home() {
                 }
             })
     ]);
-}, [session?.user?.id, posts]);
+}, [session?.user?.id, supabase]);
 
 async function fetchPosts() {
   const { data } = await supabase

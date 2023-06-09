@@ -26,10 +26,8 @@ async function updateAvatar(e) {
     }
 }
     
-    let width = 'w-12'
-    if (size === 'lg') {
-        width = 'w-24 md:w-36'
-    }
+const width = size === 'lg' ? 'w-24 md:w-36' : size === 'sm' ? 'w-8 md:w-18' : 'w-12';
+
 
     return (
         <div className={`${width} relavite`}>
